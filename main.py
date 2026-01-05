@@ -10,16 +10,19 @@ from pathlib import Path
 model = hub.load('https://www.kaggle.com/models/google/vggish/TensorFlow2/vggish/1')
 db_vectors = []
 db_filenames = []
-file_paths = Path('./data').glob('*.wav')
+file_paths = list(Path('./data').glob('*.wav'))
 
 def build_database(file_paths):
     for file_path in file_paths:
-        y, sr = librosa.load(file_path, sr=16000, mono=True)
-        y_tensor = tf.convert_to_tensor(y, dtype=tf.float32)
-        embeddings = model(y_tensor)
-        vector = tf.reduce_mean(embeddings, axis=0)
-        db_vectors.append(vector.numpy())
-        db_filenames.append(file_path.name)
+        try:
+            y, sr = librosa.load(file_path, sr=16000, mono=True)
+            y_tensor = tf.convert_to_tensor(y, dtype=tf.float32)
+            embeddings = model(y_tensor)
+            vector = tf.reduce_mean(embeddings, axis=0)
+            db_vectors.append(vector.numpy())
+            db_filenames.append(file_path.name)
+        except:
+            print(f'Failed to load {file_path}\n')
 
 build_database(file_paths)
 
@@ -34,26 +37,40 @@ else:
 
 def search_database():
     user_input = input('Enter an audio file path to search for similar songs: ')
-    user_input.strip()
-    if user_input:
-        if Path(user_input).exists():
-            
-        else:
-            print('File does not exist. Please try again.\n')
-            search_database()
+    user_input = user_input.strip()
+    query_path = Path(user_input)
+    if query_path.exists():
+        y, sr = librosa.load(query_path, sr=16000, mono=True)
+        y_tensor = tf.convert_to_tensor(y, dtype=tf.float32)
+        embeddings = model(y_tensor)
+        query_vector = tf.reduce_mean(embeddings, axis=0)
+        query_matrix = query_vector.numpy()[np.newaxis, :].astype('float32')
+        
+        # Search for similar songs
+        k = min(6, len(db_vectors))
+        distances, indices = index.search(query_matrix, k)
+        
+        print(f'\nTop {k} similar songs:')
+        for i in range(1, k):
+            idx = indices[0][i]
+            dist = distances[0][i]
+            filename = db_filenames[idx]
+            print(f'{i}. {filename} (Distance: {dist})')
     else:
-        print('No input provided. Please try again.\n')
+        print('File does not exist. Please try again.')
         search_database()
 
-file_path = librosa.ex('trumpet')
-y, sr = librosa.load(file_path)
+search_database()
 
-spectrogram = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=128, fmax=8000)
-spectrogram_db = librosa.power_to_db(spectrogram, ref=np.max)
+# file_path = librosa.ex('trumpet')
+# y, sr = librosa.load(file_path)
 
-plt.figure(figsize=(10, 4))
-librosa.display.specshow(spectrogram_db, x_axis='time', y_axis='mel', sr=sr, fmax=8000)
-plt.colorbar(format='%+2.0f dB')
-plt.title('This is what an AI "sees" when it listens to a Trumpet')
-plt.tight_layout()
-plt.show()
+# spectrogram = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=128, fmax=8000)
+# spectrogram_db = librosa.power_to_db(spectrogram, ref=np.max)
+
+# plt.figure(figsize=(10, 4))
+# librosa.display.specshow(spectrogram_db, x_axis='time', y_axis='mel', sr=sr, fmax=8000)
+# plt.colorbar(format='%+2.0f dB')
+# plt.title('This is what an AI "sees" when it listens to a Trumpet')
+# plt.tight_layout()
+# plt.show()
