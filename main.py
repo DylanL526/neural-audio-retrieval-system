@@ -50,8 +50,11 @@ def search_database():
         k = min(6, len(db_vectors))
         distances, indices = index.search(query_matrix, k)
         
-        print(f'\nTop {k} similar songs:')
-        for i in range(1, k):
+        start_index = 1
+        print(f'\nMost similar songs:')
+        if distances[0][0] > 0:
+            start_index = 0
+        for i in range(start_index, start_index + k - 1):
             idx = indices[0][i]
             dist = distances[0][i]
             filename = db_filenames[idx]
