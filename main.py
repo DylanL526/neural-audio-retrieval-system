@@ -23,6 +23,28 @@ def build_database(file_paths):
 
 build_database(file_paths)
 
+if len(db_vectors) > 0:
+    db_vectors = np.array(db_vectors).astype('float32')
+    dimension = 128
+    index = faiss.IndexFlatL2(dimension)
+    index.add(db_vectors)
+else:
+    print('No database vectors found')
+    exit()
+
+def search_database():
+    user_input = input('Enter an audio file path to search for similar songs: ')
+    user_input.strip()
+    if user_input:
+        if Path(user_input).exists():
+            
+        else:
+            print('File does not exist. Please try again.\n')
+            search_database()
+    else:
+        print('No input provided. Please try again.\n')
+        search_database()
+
 file_path = librosa.ex('trumpet')
 y, sr = librosa.load(file_path)
 
