@@ -1,7 +1,11 @@
+import tensorflow as tf
+import tensorflow_hub as hub
+import numpy as np
+import matplotlib.pyplot as plt
 import librosa
 import librosa.display
-import matplotlib.pyplot as plt
-import numpy as np
+
+model = hub.load('https://www.kaggle.com/models/google/vggish/TensorFlow2/vggish/1')
 
 file_path = librosa.ex('trumpet')
 y, sr = librosa.load(file_path)
