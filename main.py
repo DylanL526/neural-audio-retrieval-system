@@ -2,9 +2,7 @@ import tensorflow as tf
 import tensorflow_hub as hub
 import faiss
 import numpy as np
-import matplotlib.pyplot as plt
 import librosa
-import librosa.display
 from pathlib import Path
 
 model = hub.load('https://www.kaggle.com/models/google/vggish/TensorFlow2/vggish/1')
@@ -32,7 +30,7 @@ if len(db_vectors) > 0:
     index = faiss.IndexFlatL2(dimension)
     index.add(db_vectors)
 else:
-    print('No database vectors found')
+    print('No database vectors found.')
     exit()
 
 def search_database():
@@ -64,16 +62,3 @@ def search_database():
         search_database()
 
 search_database()
-
-# file_path = librosa.ex('trumpet')
-# y, sr = librosa.load(file_path)
-
-# spectrogram = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=128, fmax=8000)
-# spectrogram_db = librosa.power_to_db(spectrogram, ref=np.max)
-
-# plt.figure(figsize=(10, 4))
-# librosa.display.specshow(spectrogram_db, x_axis='time', y_axis='mel', sr=sr, fmax=8000)
-# plt.colorbar(format='%+2.0f dB')
-# plt.title('This is what an AI "sees" when it listens to a Trumpet')
-# plt.tight_layout()
-# plt.show()
