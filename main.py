@@ -5,11 +5,13 @@ import numpy as np
 import librosa
 from pathlib import Path
 
+# Load VGGish neural network
 model = hub.load('https://www.kaggle.com/models/google/vggish/TensorFlow2/vggish/1')
 db_vectors = []
 db_filenames = []
 file_paths = list(Path('./data').glob('*.wav'))
 
+# Build vectors by using VGGish embedding model
 def build_database(file_paths):
     for file_path in file_paths:
         try:
@@ -24,6 +26,7 @@ def build_database(file_paths):
 
 build_database(file_paths)
 
+# Create vector database for retrieval purposes with FAISS
 if len(db_vectors) > 0:
     db_vectors = np.array(db_vectors).astype('float32')
     dimension = 128
@@ -33,8 +36,9 @@ else:
     print('No database vectors found.')
     exit()
 
+# Perform similarity search based on user input audio file name
 def search_database():
-    user_input = input('Enter an audio file path to search for similar songs: ')
+    user_input = input('Enter an audio file path to search for similar audio: ')
     user_input = user_input.strip()
     query_path = Path(user_input)
     if query_path.exists():
@@ -44,12 +48,12 @@ def search_database():
         query_vector = tf.reduce_mean(embeddings, axis=0)
         query_matrix = query_vector.numpy()[np.newaxis, :].astype('float32')
         
-        # Search for similar songs
+        # Search for similar audio
         k = min(6, len(db_vectors))
         distances, indices = index.search(query_matrix, k)
         
         start_index = 1
-        print(f'\nMost similar songs:')
+        print(f'\nMost similar audio:')
         if distances[0][0] > 0:
             start_index = 0
         for i in range(start_index, start_index + k - 1):
