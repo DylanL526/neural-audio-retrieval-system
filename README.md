@@ -3,3 +3,5 @@
 An audio retrieval pipeline utilizing Google's [VGGish](https://github.com/tensorflow/models/tree/master/research/audioset/vggish) deep neural network and Meta's [FAISS](https://github.com/facebookresearch/faiss)
 to embed and search for mathematically similar audio. As opposed to searching for semantically similar audio based on names or descriptions, this engine analyzes the raw audio waveform,
 extracts semantic features, and retrieves other audio files based on a kNN search. Applications include implementations in music recommendation systems or automated audio copyright detection.
+
+**Note**: This project was tested on the [GTZAN Dataset](https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification) which is comprised of 1000 30-second clips of various music genres and is not included in the repository due to size constraints.
